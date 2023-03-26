@@ -15,9 +15,9 @@ const cardSchema = new Schema({
         type: String,
         require: true
     },
-    date : {
-        type: Date,
-        require: true
+    datetime : {
+        type: [String],
+        require: false
     },
 
     location : {

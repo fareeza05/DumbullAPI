@@ -8,41 +8,44 @@ const { buildSchema } = require('graphql');
 const mongoose = require('mongoose');
 const DB = "mongodb+srv://anngocthienpham:12Anpham24@cluster0.77miiza.mongodb.net/app-data?retryWrites=true&w=majority"
 require('dotenv').config();
-const cors = require('cors')
+const cors = require('cors');
 
 const Card = require('./models/card');
 const User = require('./models/user');
 
 
-var allowedOrigins = process.env.allowedOrigins.split(',');
-app.use(cors({
-    origin: function (origin, callback) {
-        // allow requests with no origin 
-        // (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+// var allowedOrigins = process.env.allowedOrigins.split(',');
 
-        if (allowedOrigins.indexOf(origin) === -1) {
-            var msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    }
-}));
 // using express, creating express app object
 const app  = express();
+
+// app.use(cors({
+//     origin: function (origin, callback) {
+//         // allow requests with no origin 
+//         // (like mobile apps or curl requests)
+//         if (!origin) return callback(null, true);
+
+//        if (allowedOrigins.indexOf(origin) === -1) {
+//            var msg = 'The CORS policy for this site does not ' + 'allow access from the specified Origin.';
+//            return callback(new Error(msg), false);
+//        }
+//        return callback(null, true);
+//    }
+// }));
 
 //using body-parser middleware
 app.use(bodyParser.json());
 
 const schema = buildSchema(`
-
     type Card {
         _id : ID!
         major: String!
         studyClass: String!
         tags: String!
-        datetime: String!
+        datetime: [String]
         location: String!
+        creator : ID!
+
      }
 
      type User {
@@ -61,12 +64,12 @@ const schema = buildSchema(`
         major: String!
         studyClass: String!
         tags: String!
-        datetime: String!
+        datetime: [String]
         location: String!
 
     }
 
-    input UserInput{
+    input UserInput {
         email: String!
         major: String!
         username : String!
@@ -77,25 +80,25 @@ const schema = buildSchema(`
         joinedGroups: [ID]
     }
 
-     type RootQuery {
+     type Query {
         cards: [Card!]!
-        users: [User!]!
-    
-
+        users: [User!]! 
+        getUserById(_id: ID!): User!
      }
 
-    type RootMutation {
+    type Mutation {
         createCard(cardInput: CardInput): Card
-        createUser(userInput : UserInput): User
+        createUser(userInput: UserInput): User
 
     }
     schema {
-        query: RootQuery
-        mutation: RootMutation
+        query: Query
+        mutation: Mutation
     }
  `);
+
+
 const rootValue = {
-    
     cards: () => {
         return Card.find().then(cards => {
             return cards.map(card => {
@@ -105,8 +108,8 @@ const rootValue = {
             throw err;
         });
     },
+
     createCard: args => {
-        
        const card = new Card({
         major: args.cardInput.major,
         studyClass: args.cardInput.studyClass,
@@ -130,9 +133,7 @@ const rootValue = {
         .catch(err =>{
             console.log(err);
             throw err;
-        });
-        
-            
+        }); 
      },
 
      createUser : args => {
@@ -145,8 +146,6 @@ const rootValue = {
             name: args.userInput.name,
             joinedGroups: args.userInput.joinedGroups,
             userimg : args.userInput.userimg
-
-
         });
         return user.save().then(result => {
             console.log(result);
@@ -155,11 +154,15 @@ const rootValue = {
             console.log(err);
             throw err;
         });
-        
-
-     },
-
-
+     }, 
+     getUserById : args => {
+        return User.findOne({_id: args._id}).then((user) => {
+            return {
+                ...user._doc,
+                _id: user._id
+            }
+        })
+     }
 };
 
 
@@ -190,4 +193,4 @@ mongoose.connect(DB).then(() => {
 });
 
 // listening on port
-app.listen(process.env.PORT, () => console.log('Connected on' + process.env.GRAPHQLPORT));
+app.listen(3000);
