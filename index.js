@@ -1,12 +1,11 @@
-//fareezar, 4E0pUtc88ASmcklk
-//run with  "npm start index.js"
+
 // importing the dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const mongoose = require('mongoose');
-const DB = "mongodb+srv://anngocthienpham:12Anpham24@cluster0.77miiza.mongodb.net/app-data?retryWrites=true&w=majority"
+const DB = "mongodb+srv://anngocthienpham:<PASSWORD>@cluster0.77miiza.mongodb.net/app-data?retryWrites=true&w=majority"
 require('dotenv').config();
 const cors = require('cors');
 
