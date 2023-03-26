@@ -39,29 +39,26 @@ app.use(bodyParser.json());
 const schema = buildSchema(`
     type Card {
         _id : ID!
-        major: String!
+        creator : ID!
         studyClass: String!
         tags: String!
         datetime: [String]
+        members: [String!]
         location: String!
-        creator : ID!
-
      }
 
      type User {
         _id : ID!
+         username : String!
+         name: String!
+         joinedGroups: [ID]
         major: String!
-        email: String!
-        username : String!
-        name: String!
-        userimg: String
-        studyClass: String
         tags: String!
-        joinedGroups: [ID]
+        userImg: String
+        email: String!
      }
 
     input CardInput{
-        major: String!
         studyClass: String!
         tags: String!
         datetime: [String]
@@ -74,7 +71,7 @@ const schema = buildSchema(`
         major: String!
         username : String!
         name: String!
-        userimg: String
+        userImg: String
         tags: String!
         studyClass: String
         joinedGroups: [ID]
@@ -111,7 +108,6 @@ const rootValue = {
 
     createCard: args => {
        const card = new Card({
-        major: args.cardInput.major,
         studyClass: args.cardInput.studyClass,
         tags: args.cardInput.tags,
         datetime: new datetime (args.cardInput.datetime),
@@ -145,7 +141,7 @@ const rootValue = {
             username: args.userInput.username,
             name: args.userInput.name,
             joinedGroups: args.userInput.joinedGroups,
-            userimg : args.userInput.userimg
+            userImg : args.userInput.userImg
         });
         return user.save().then(result => {
             console.log(result);
